@@ -13,6 +13,13 @@ db = mysql.connector.connect(
     database='train_booking'
 )
 
+def get_all_stations():
+    cursor = db.cursor()
+    cursor.execute("SELECT id, station_code, station_name, city FROM stations")
+    stations = cursor.fetchall()
+    cursor.close()
+    return stations
+
 @app.route('/')
 def home():
     return redirect(url_for('login'))
@@ -57,7 +64,8 @@ def login():
         result = cursor.fetchone()
         cursor.close()
         if result and check_password_hash(result[0], password):
-            return render_template('dashboard.html', username=username)
+            stations = get_all_stations()
+            return render_template('dashboard.html', username=username, stations=stations)
         else:
             flash('Invalid credentials')
             return redirect(url_for('login'))
